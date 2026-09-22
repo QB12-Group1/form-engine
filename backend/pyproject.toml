@@ -1,0 +1,41 @@
+[project]
+name = "form-engine"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "celery-types>=0.26.0",
+    "celery[redis]>=5.6.3",
+    "django-cors-headers>=4.9.0",
+    "django-environ>=0.14.0",
+    "django-filter>=26.1",
+    "django-redis>=7.0.0",
+    "django-stubs>=6.1.1",
+    "django-stubs-ext>=6.1.1",
+    "django-types>=0.24.0",
+    "djangorestframework>=3.18.1",
+    "drf-spectacular>=0.30.0",
+    "flower>=2.1.0",
+    "ipython>=9.17.1",
+    "psycopg[binary]>=3.3.6",
+    "uvicorn[standard]>=0.53.0",
+]
+
+[dependency-groups]
+dev = ["pre-commit>=4.6.2", "pyright>=1.1.414", "ruff>=0.16.8"]
+
+[tool.ruff]
+target-version = "py312"
+extend-exclude = ["**/migrations/*"]
+
+[tool.ruff.lint]
+select = ["DJ", "E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.pyright]
+pythonVersion = "3.12"
+exclude = ["**/migrations", "**/.venv"]
+typeCheckingMode = "standard"
