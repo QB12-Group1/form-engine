@@ -1,2 +1,6 @@
 [tool.uv.workspace]
 members = ["backend"]
+
+
+[tool.typos.default.extend-identifiers]
+OTPs = "OTPs"

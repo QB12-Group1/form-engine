@@ -1,0 +1,98 @@
+Enum OTPPurpose {
+  Login
+  Signup
+}
+
+Enum OTPStatus {
+  Pending
+  Revoked
+  Verified
+}
+
+Enum QuestionType {
+  Text
+  SingleChoice
+  MultipleChoice
+  Dropdown
+  Rating
+}
+
+Enum SurveyStatus {
+  Draft
+  Published
+  Closed
+}
+
+// typos:ignore
+Table OTPs {
+  id integer [pk, increment]
+  email varchar
+  purpose OTPPurpose [default: OTPPurpose.Login]
+  code varchar(128)
+  attempts_count smallint [default: 0]
+  max_attempts smallint [default: 5]
+  expires_at datetime
+  status OTPStatus [default: OTPStatus.Pending]
+  consumed_at datetime [null]
+  created_at datetime [default: `now()`]
+}
+
+Table User {
+  id integer [pk, increment]
+  first_name varchar
+  last_name varchar
+  username varchar [default: null, unique]
+  email varchar [default: null, unique]
+  password varchar [default: null]
+  created_at datetime [default: `now()`]
+}
+
+Table Workspace {
+  id integer [pk, increment]
+  owner_id integer [ref: > User.id, not null]
+  name varchar
+  password varchar
+  created_at datetime [default: `now()`]
+}
+
+Table Survey {
+  id integer [pk, increment]
+  workspace_id integer [ref: > Workspace.id, not null]
+  title varchar
+  description text
+  status SurveyStatus [default: SurveyStatus.Draft]
+  settings json [default: `{}`]
+  logic_rules json [default: `{}`]
+  created_at datetime [default: `now()`]
+  updated_at datetime [default: `now()`]
+}
+
+Table Question {
+  id integer [pk, increment]
+  survey_id integer [ref: > Survey.id, not null]
+  title varchar
+  description text
+  type QuestionType [default: QuestionType.Text]
+  is_required bool [default: false]
+  order integer [default: 0]
+  properties json [default: `{}`]
+}
+
+Table ResponseSession {
+  id integer [pk, increment]
+  survey_id integer [ref: > Survey.id, not null]
+  respondent_ip varchar
+  user_agent varchar
+  is_completed bool [default: false]
+  submitted_at datetime [default: null]
+  created_at datetime [default: `now()`]
+}
+
+Table Answer {
+  id integer [pk, increment]
+  question_id integer [ref: > Question.id, not null]
+  session_id integer [ref: > ResponseSession.id, not null]
+  value json [default: `{}`]
+  created_at datetime [default: `now()`]
+  updated_at datetime [default: `now()`]
+}
