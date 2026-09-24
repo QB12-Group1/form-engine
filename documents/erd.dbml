@@ -45,6 +45,7 @@ Table User {
   email varchar [default: null, unique]
   password varchar [default: null]
   created_at datetime [default: `now()`]
+  updated_at datetime [default: `now()`]
 }
 
 Table Workspace {
@@ -53,6 +54,7 @@ Table Workspace {
   name varchar
   password varchar
   created_at datetime [default: `now()`]
+  updated_at datetime [default: `now()`]
 }
 
 Table Survey {
@@ -76,6 +78,8 @@ Table Question {
   is_required bool [default: false]
   order integer [default: 0]
   properties json [default: `{}`]
+  created_at datetime [default: `now()`]
+  updated_at datetime [default: `now()`]
 }
 
 Table ResponseSession {
@@ -86,6 +90,7 @@ Table ResponseSession {
   is_completed bool [default: false]
   submitted_at datetime [default: null]
   created_at datetime [default: `now()`]
+  updated_at datetime [default: `now()`]
 }
 
 Table Answer {

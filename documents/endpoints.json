@@ -1,0 +1,1015 @@
+{
+  "user-management": [
+    {
+      "endpoint": "/api/users",
+      "method": "POST",
+      "description": "Create a new user",
+      "request_body": {
+        "first_name": {
+          "type": "string",
+          "required": true
+        },
+        "last_name": {
+          "type": "string",
+          "required": true
+        },
+        "email": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "id": "integer",
+          "first_name": "string",
+          "last_name": "string",
+          "email": "string",
+          "created_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/users/{id}",
+      "method": "GET",
+      "description": "Get user details by ID",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "integer",
+          "first_name": "string",
+          "last_name": "string",
+          "username": "string",
+          "email": "string",
+          "created_at": "datetime",
+          "updated_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/users/{id}",
+      "method": "PATCH",
+      "description": "Partially update user details",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "request_body": {
+        "first_name": {
+          "type": "string",
+          "required": false
+        },
+        "last_name": {
+          "type": "string",
+          "required": false
+        },
+        "username": {
+          "type": "string",
+          "required": false
+        },
+        "email": {
+          "type": "string",
+          "required": false
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "integer",
+          "first_name": "string",
+          "last_name": "string",
+          "username": "string",
+          "email": "string",
+          "updated_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/users/{id}",
+      "method": "DELETE",
+      "description": "Delete a user by ID",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 204,
+        "body": null
+      }
+    }
+  ],
+  "workspace-management": [
+    {
+      "endpoint": "/api/workspaces",
+      "method": "POST",
+      "description": "Create a new workspace",
+      "request_body": {
+        "name": {
+          "type": "string",
+          "required": true
+        },
+        "owner_id": {
+          "type": "integer",
+          "required": true
+        },
+        "password": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "id": "integer",
+          "name": "string",
+          "owner_id": "integer",
+          "password": "string",
+          "created_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/workspaces/{id}",
+      "method": "GET",
+      "description": "Get workspace details by ID",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "integer",
+          "name": "string",
+          "owner_id": "integer",
+          "password": "string",
+          "created_at": "datetime",
+          "updated_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/workspaces/{id}",
+      "method": "PATCH",
+      "description": "Partially update workspace details",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "request_body": {
+        "name": {
+          "type": "string",
+          "required": false
+        },
+        "password": {
+          "type": "string",
+          "required": false
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "integer",
+          "name": "string",
+          "owner_id": "integer",
+          "password": "string",
+          "updated_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/workspaces/{id}",
+      "method": "DELETE",
+      "description": "Delete a workspace by ID",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 204,
+        "body": null
+      }
+    },
+    {
+      "endpoint": "/api/users/{id}/workspaces",
+      "method": "GET",
+      "description": "List all workspaces for a given user",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "owner_id": {
+                "type": "integer"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "survey-management": [
+    {
+      "endpoint": "/api/surveys",
+      "method": "POST",
+      "description": "Create a new survey",
+      "request_body": {
+        "workspace_id": {
+          "type": "integer",
+          "required": true
+        },
+        "title": {
+          "type": "string",
+          "required": true
+        },
+        "description": {
+          "type": "string",
+          "required": false
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Draft",
+            "Published",
+            "Closed"
+          ],
+          "default": "Draft",
+          "required": false
+        },
+        "settings": {
+          "type": "object",
+          "description": "Custom survey configuration settings",
+          "additionalProperties": true,
+          "default": {}
+        },
+        "logic_rules": {
+          "type": "object",
+          "description": "Rules for survey branching or validation",
+          "additionalProperties": true,
+          "default": {}
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "id": "integer",
+          "workspace_id": "integer",
+          "title": "string",
+          "description": "string",
+          "status": "string",
+          "settings": "json",
+          "logic_rules": "json",
+          "created_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/surveys/{id}",
+      "method": "GET",
+      "description": "Get survey details by ID",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "integer",
+          "workspace_id": "integer",
+          "title": "string",
+          "description": "string",
+          "status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Published",
+              "Closed"
+            ]
+          },
+          "settings": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "logic_rules": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "created_at": "datetime",
+          "updated_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/surveys/{id}",
+      "method": "PATCH",
+      "description": "Update survey details",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "request_body": {
+        "title": {
+          "type": "string",
+          "required": false
+        },
+        "description": {
+          "type": "string",
+          "required": false
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Draft",
+            "Published",
+            "Closed"
+          ],
+          "required": false
+        },
+        "settings": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": false
+        },
+        "logic_rules": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": false
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "integer",
+          "workspace_id": "integer",
+          "title": "string",
+          "description": "string",
+          "status": "string",
+          "settings": "json",
+          "logic_rules": "json",
+          "updated_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/surveys/{id}",
+      "method": "DELETE",
+      "description": "Delete a survey",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 204,
+        "body": null
+      }
+    },
+    {
+      "endpoint": "/api/workspaces/{workspaceId}/surveys",
+      "method": "GET",
+      "description": "List all surveys for a workspace",
+      "parameters": {
+        "path": {
+          "workspaceId": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "workspace_id": {
+                "type": "integer"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "Draft",
+                  "Published",
+                  "Closed"
+                ]
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "endpoint": "/api/surveys/{id}/publish",
+      "method": "PATCH",
+      "description": "Change survey status to Published",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "integer",
+          "status": "string",
+          "updated_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/surveys/{id}/close",
+      "method": "PATCH",
+      "description": "Change survey status to Closed",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "integer",
+          "status": "string",
+          "updated_at": "datetime"
+        }
+      }
+    }
+  ],
+  "question-management": [
+    {
+      "endpoint": "/api/surveys/{surveyId}/questions",
+      "method": "POST",
+      "description": "Add a new question to a survey",
+      "parameters": {
+        "path": {
+          "surveyId": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "request_body": {
+        "title": {
+          "type": "string",
+          "required": true
+        },
+        "description": {
+          "type": "string",
+          "required": false
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Text",
+            "SingleChoice",
+            "MultipleChoice",
+            "Dropdown",
+            "Rating"
+          ],
+          "default": "Text",
+          "required": true
+        },
+        "is_required": {
+          "type": "boolean",
+          "default": false,
+          "required": false
+        },
+        "order": {
+          "type": "integer",
+          "default": 0,
+          "required": false
+        },
+        "properties": {
+          "type": "object",
+          "description": "Question-specific configuration (e.g., options for choice questions, min/max for rating)",
+          "additionalProperties": true,
+          "default": {}
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "id": "integer",
+          "survey_id": "integer",
+          "title": "string",
+          "description": "string",
+          "type": "string",
+          "is_required": "boolean",
+          "order": "integer",
+          "properties": "json",
+          "created_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/surveys/{surveyId}/questions",
+      "method": "GET",
+      "description": "List all questions for a survey",
+      "parameters": {
+        "path": {
+          "surveyId": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "survey_id": {
+                "type": "integer"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Text",
+                  "SingleChoice",
+                  "MultipleChoice",
+                  "Dropdown",
+                  "Rating"
+                ]
+              },
+              "is_required": {
+                "type": "boolean"
+              },
+              "order": {
+                "type": "integer"
+              },
+              "properties": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "endpoint": "/api/questions/{id}",
+      "method": "GET",
+      "description": "Get question details",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "integer",
+          "survey_id": "integer",
+          "title": "string",
+          "description": "string",
+          "type": {
+            "type": "string",
+            "enum": [
+              "Text",
+              "SingleChoice",
+              "MultipleChoice",
+              "Dropdown",
+              "Rating"
+            ]
+          },
+          "is_required": "boolean",
+          "order": "integer",
+          "properties": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "created_at": "datetime",
+          "updated_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/questions/{id}",
+      "method": "PATCH",
+      "description": "Update question details",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "request_body": {
+        "title": {
+          "type": "string",
+          "required": false
+        },
+        "description": {
+          "type": "string",
+          "required": false
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Text",
+            "SingleChoice",
+            "MultipleChoice",
+            "Dropdown",
+            "Rating"
+          ],
+          "required": false
+        },
+        "is_required": {
+          "type": "boolean",
+          "required": false
+        },
+        "order": {
+          "type": "integer",
+          "required": false
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": false
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "integer",
+          "survey_id": "integer",
+          "title": "string",
+          "description": "string",
+          "type": "string",
+          "is_required": "boolean",
+          "order": "integer",
+          "properties": "json",
+          "updated_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/questions/{id}",
+      "method": "DELETE",
+      "description": "Delete a question",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 204,
+        "body": null
+      }
+    }
+  ],
+  "response-session-management": [
+    {
+      "endpoint": "/api/response-sessions",
+      "method": "POST",
+      "description": "Start a new response session for a survey",
+      "request_body": {
+        "survey_id": {
+          "type": "integer",
+          "required": true
+        },
+        "respondent_ip": {
+          "type": "string",
+          "required": false
+        },
+        "user_agent": {
+          "type": "string",
+          "required": false
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "id": "integer",
+          "survey_id": "integer",
+          "respondent_ip": "string",
+          "user_agent": "string",
+          "is_completed": "boolean",
+          "created_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/response-sessions/{id}",
+      "method": "GET",
+      "description": "Get response session details",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "integer",
+          "survey_id": "integer",
+          "respondent_ip": "string",
+          "user_agent": "string",
+          "is_completed": "boolean",
+          "submitted_at": "datetime",
+          "created_at": "datetime",
+          "updated_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/response-sessions/{sessionId}/answers",
+      "method": "POST",
+      "description": "Submit an answer for a question within a response session",
+      "parameters": {
+        "path": {
+          "sessionId": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "request_body": {
+        "question_id": {
+          "type": "integer",
+          "required": true
+        },
+        "value": {
+          "type": "object",
+          "description": "Answer value (can be string, array, number, etc. depending on question type)",
+          "additionalProperties": true,
+          "required": true
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "id": "integer",
+          "question_id": "integer",
+          "session_id": "integer",
+          "value": "json",
+          "created_at": "datetime"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/response-sessions/{sessionId}/answers",
+      "method": "GET",
+      "description": "Get all answers for a specific response session",
+      "parameters": {
+        "path": {
+          "sessionId": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "question_id": {
+                "type": "integer"
+              },
+              "session_id": {
+                "type": "integer"
+              },
+              "value": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "endpoint": "/api/surveys/{surveyId}/responses",
+      "method": "GET",
+      "description": "Get all responses for a survey",
+      "parameters": {
+        "path": {
+          "surveyId": {
+            "type": "integer",
+            "required": true
+          }
+        },
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1,
+            "required": false
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20,
+            "required": false
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer"
+                  },
+                  "survey_id": {
+                    "type": "integer"
+                  },
+                  "respondent_ip": {
+                    "type": "string"
+                  },
+                  "user_agent": {
+                    "type": "string"
+                  },
+                  "is_completed": {
+                    "type": "boolean"
+                  },
+                  "submitted_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            },
+            "pagination": {
+              "type": "object",
+              "properties": {
+                "current_page": {
+                  "type": "integer"
+                },
+                "total_pages": {
+                  "type": "integer"
+                },
+                "total_count": {
+                  "type": "integer"
+                },
+                "per_page": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "endpoint": "/api/response-sessions/{id}/complete",
+      "method": "PATCH",
+      "description": "Mark a response session as completed",
+      "parameters": {
+        "path": {
+          "id": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "integer",
+          "is_completed": "boolean",
+          "submitted_at": "datetime",
+          "updated_at": "datetime"
+        }
+      }
+    }
+  ]
+}
