@@ -37,10 +37,10 @@ class User(AbstractUser):
 
     def _normalize_nullable_fields(self, update_fields=None) -> None:
         if update_fields is None or "username" in update_fields:
-            self.username = self.username or None
+            self.username = self.username or None  # pyright: ignore
 
         if update_fields is None or "email" in update_fields:
-            self.email = self.email or None
+            self.email = self.email or None  # pyright: ignore
 
     def clean(self) -> None:
         super().clean()
