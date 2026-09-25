@@ -66,6 +66,7 @@ LOCAL_APPS = [
     "accounts.apps.AccountsConfig",
     "workspaces.apps.WorkspacesConfig",
     "surveys.apps.SurveysConfig",
+    "responses.apps.ResponsesConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
