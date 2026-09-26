@@ -12,7 +12,7 @@ services:
       [
         "/bin/sh",
         "-c",
-        "exec /app/.venv/bin/uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --workers $${WEB_CONCURRENCY:-4} --proxy-headers --forwarded-allow-ips=*",
+        "exec uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --workers $${WEB_CONCURRENCY:-4} --proxy-headers --forwarded-allow-ips=*",
       ]
     depends_on:
       postgres:
@@ -20,7 +20,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "/app/.venv/bin/python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/healthz/', timeout=3)"]
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/healthz/', timeout=3)"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -42,7 +42,7 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:?set POSTGRES_USER}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:?set POSTGRES_DB}
       CACHE_URL: redis://:${REDIS_PASSWORD:?set REDIS_PASSWORD}@redis:6379/1
       CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:?set REDIS_PASSWORD}@redis:6379/0
-    command: ["/bin/sh", "-c", "/app/.venv/bin/python manage.py migrate --noinput && /app/.venv/bin/python manage.py collectstatic --noinput"]
+    command: ["/bin/sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -60,7 +60,7 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:?set POSTGRES_USER}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:?set POSTGRES_DB}
       CACHE_URL: redis://:${REDIS_PASSWORD:?set REDIS_PASSWORD}@redis:6379/1
       CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:?set REDIS_PASSWORD}@redis:6379/0
-    command: ["/app/.venv/bin/celery", "-A", "config", "worker", "--loglevel=WARNING"]
+    command: ["celery", "-A", "config", "worker", "--loglevel=WARNING"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -82,7 +82,7 @@ services:
       CACHE_URL: redis://:${REDIS_PASSWORD:?set REDIS_PASSWORD}@redis:6379/1
       CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:?set REDIS_PASSWORD}@redis:6379/0
       FLOWER_BASIC_AUTH: ${FLOWER_BASIC_AUTH:?set FLOWER_BASIC_AUTH}
-    command: ["/bin/sh", "-c", "exec /app/.venv/bin/celery -A config flower --port=5555 --basic_auth=$$FLOWER_BASIC_AUTH"]
+    command: ["/bin/sh", "-c", "exec celery -A config flower --port=5555 --basic_auth=$$FLOWER_BASIC_AUTH"]
     depends_on:
       redis:
         condition: service_healthy

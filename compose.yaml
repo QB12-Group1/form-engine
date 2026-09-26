@@ -12,7 +12,7 @@ services:
       [
         "/bin/sh",
         "-c",
-        "/app/.venv/bin/python manage.py migrate --noinput && /app/.venv/bin/python manage.py collectstatic --noinput && exec /app/.venv/bin/uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips=*",
+        "python manage.py migrate --noinput && python manage.py collectstatic --noinput && exec uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips=*",
       ]
     depends_on:
       postgres:
@@ -30,7 +30,7 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:-form_engine}:${POSTGRES_PASSWORD:-form_engine}@postgres:5432/${POSTGRES_DB:-form_engine}
       CACHE_URL: redis://redis:6379/1
       CELERY_BROKER_URL: redis://redis:6379/0
-    command: ["/app/.venv/bin/celery", "-A", "config", "worker", "--loglevel=INFO"]
+    command: ["celery", "-A", "config", "worker", "--loglevel=INFO"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,7 +50,7 @@ services:
       [
         "/bin/sh",
         "-c",
-        "exec /app/.venv/bin/celery -A config flower --port=5555 $${FLOWER_BASIC_AUTH:+--basic_auth=$$FLOWER_BASIC_AUTH}",
+        "exec celery -A config flower --port=5555 $${FLOWER_BASIC_AUTH:+--basic_auth=$$FLOWER_BASIC_AUTH}",
       ]
     depends_on:
       redis:
