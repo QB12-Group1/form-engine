@@ -26,6 +26,7 @@ env = environ.Env(
     EMAIL_USE_TLS=(bool, True),
     DJANGO_ALLOWED_HOSTS=(list[str], []),
     CORS_ALLOWED_ORIGINS=(list[str], []),
+    CSRF_TRUSTED_ORIGINS=(list[str], []),
 )
 environ.Env.read_env(BASE_DIR.parent / ".env")
 
@@ -205,6 +206,7 @@ SPECTACULAR_SETTINGS = {
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS")
 CORS_ALLOW_ALL_ORIGINS = DEBUG and not CORS_ALLOWED_ORIGINS
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS")
 
 
 # Celery
