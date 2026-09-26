@@ -1,9 +1,11 @@
 from django.urls import path
 
-from .views import GoogleAuthView
+from . import views
 
 app_name = "accounts"
 
 urlpatterns = [
-    path("google/", GoogleAuthView.as_view(), name="google-auth"),
+    path("otp/request/", views.RequestOTPView.as_view(), name="request-otp"),
+    path("otp/verify/", views.VerifyOTPView.as_view(), name="verify-otp"),
+    path("google/", views.GoogleAuthView.as_view(), name="google"),
 ]

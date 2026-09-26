@@ -6,7 +6,36 @@ from google.auth.transport import requests
 from google.oauth2 import id_token
 from rest_framework import serializers
 
+from .services import OTPService
+
 UserModel = get_user_model()
+
+
+class BaseOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value) -> str:
+        return value.strip().lower()
+
+
+class RequestOTPSerializer(BaseOTPSerializer):
+    pass
+
+
+class VerifyOTPSerializer(BaseOTPSerializer):
+    code = serializers.RegexField(
+        regex=OTPService.OTP_REGEX,
+        min_length=OTPService.CODE_LENGTH,
+        max_length=OTPService.CODE_LENGTH,
+        error_messages={
+            "invalid": "Code contains invalid characters.",
+            "min_length": f"Code must be {OTPService.CODE_LENGTH} digits.",
+            "max_length": f"Code must be {OTPService.CODE_LENGTH} digits.",
+        },
+    )
+
+    def validate_email(self, value) -> str:
+        return value.strip().lower()
 
 
 class GoogleAuthSerializer(serializers.Serializer):
@@ -42,9 +71,3 @@ class GoogleAuthSerializer(serializers.Serializer):
         }
 
         return attrs
-
-
-class TokenResponseSerializer(serializers.Serializer):
-    access = serializers.CharField()
-    refresh = serializers.CharField()
-    email = serializers.EmailField()
