@@ -8,4 +8,5 @@ urlpatterns = [
     path("otp/request/", views.RequestOTPView.as_view(), name="request-otp"),
     path("otp/verify/", views.VerifyOTPView.as_view(), name="verify-otp"),
     path("google/", views.GoogleAuthView.as_view(), name="google"),
+    path("me/", views.UserProfileView.as_view(), name="me"),
 ]
