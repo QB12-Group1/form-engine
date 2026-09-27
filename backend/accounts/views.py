@@ -86,6 +86,7 @@ class RequestOTPView(APIView):
             "to the specified email address."
         ),
         tags=["Authentication"],
+        auth=[],
         request=RequestOTPSerializer,
         responses={
             status.HTTP_200_OK: OpenApiResponse(
@@ -142,7 +143,7 @@ class RequestOTPView(APIView):
 
 
 class VerifyOTPView(APIView):
-    permission_classes = []
+    permission_classes = [AllowAny]
 
     @extend_schema(
         summary="Verify OTP",
@@ -151,6 +152,7 @@ class VerifyOTPView(APIView):
             "Creates the user when needed and returns JWT access and refresh tokens."
         ),
         tags=["Authentication"],
+        auth=[],
         request=VerifyOTPSerializer,
         responses={
             status.HTTP_200_OK: OpenApiResponse(
@@ -214,6 +216,7 @@ class GoogleAuthView(APIView):
             "Returns JWT access and refresh tokens along with the user's email."
         ),
         tags=["Authentication"],
+        auth=[],
         request=GoogleAuthSerializer,
         responses={
             status.HTTP_200_OK: OpenApiResponse(
