@@ -52,8 +52,6 @@ class SurveySerializer(serializers.ModelSerializer):
 
 
 class SurveyListSerializer(serializers.ModelSerializer):
-    workspace_id = serializers.IntegerField(read_only=True)
-
     class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
         model = Survey
         fields = [
