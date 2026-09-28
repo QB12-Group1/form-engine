@@ -11,6 +11,16 @@ from .services import OTPService
 UserModel = get_user_model()
 
 
+class UserProfileSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(required=True, min_length=2)
+    last_name = serializers.CharField(required=True, min_length=2)
+
+    class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
+        model = UserModel
+        fields = ["id", "first_name", "last_name", "email"]
+        read_only_fields = ["id", "email"]
+
+
 class BaseOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
 

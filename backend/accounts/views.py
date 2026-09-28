@@ -1,9 +1,14 @@
 from typing import Any
 
 from django.contrib.auth import get_user_model
-from drf_spectacular.utils import OpenApiResponse, extend_schema, inline_serializer
-from rest_framework import serializers, status
-from rest_framework.permissions import AllowAny
+from drf_spectacular.utils import (
+    OpenApiResponse,
+    extend_schema,
+    extend_schema_view,
+    inline_serializer,
+)
+from rest_framework import generics, serializers, status
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,6 +18,7 @@ from rest_framework_simplejwt.views import TokenBlacklistView, TokenRefreshView
 from .serializers import (
     GoogleAuthSerializer,
     RequestOTPSerializer,
+    UserProfileSerializer,
     VerifyOTPSerializer,
 )
 from .services import OTPRateLimitError, OTPService
@@ -20,6 +26,72 @@ from .services import OTPRateLimitError, OTPService
 UserModel = get_user_model()
 
 
+@extend_schema_view(
+    get=extend_schema(
+        summary="Get User Profile",
+        description="Retrieves the authenticated user's profile.",
+        tags=["User Profile"],
+        responses={
+            status.HTTP_200_OK: OpenApiResponse(
+                response=UserProfileSerializer,
+                description="Authenticated user's profile retrieved successfully.",
+            ),
+            status.HTTP_401_UNAUTHORIZED: OpenApiResponse(
+                description=(
+                    "Authentication credentials were not provided or are invalid."
+                )
+            ),
+        },
+    ),
+    put=extend_schema(
+        summary="Update User Profile",
+        description="Replaces the authenticated user's profile information.",
+        tags=["User Profile"],
+        request=UserProfileSerializer,
+        responses={
+            status.HTTP_200_OK: OpenApiResponse(
+                response=UserProfileSerializer,
+                description="User profile updated successfully.",
+            ),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+                description="Invalid profile data."
+            ),
+            status.HTTP_401_UNAUTHORIZED: OpenApiResponse(
+                description=(
+                    "Authentication credentials were not provided or are invalid."
+                )
+            ),
+        },
+    ),
+    patch=extend_schema(
+        summary="Partially Update User Profile",
+        description="Updates one or more fields of the authenticated user's profile.",
+        tags=["User Profile"],
+        request=UserProfileSerializer,
+        responses={
+            status.HTTP_200_OK: OpenApiResponse(
+                response=UserProfileSerializer,
+                description="User profile updated successfully.",
+            ),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+                description="Invalid profile data."
+            ),
+            status.HTTP_401_UNAUTHORIZED: OpenApiResponse(
+                description=(
+                    "Authentication credentials were not provided or are invalid."
+                )
+            ),
+        },
+    ),
+)
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserProfileSerializer
+
+    def get_object(self) -> UserModel:  # pyright: ignore[reportInvalidTypeForm]
+        user = self.request.user
+        self.check_object_permissions(self.request, user)
+        return user
 @extend_schema(
     summary="Refresh Access Token",
     description=(
