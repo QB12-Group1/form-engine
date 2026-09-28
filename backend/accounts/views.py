@@ -8,6 +8,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenBlacklistView, TokenRefreshView
 
 from .serializers import (
     GoogleAuthSerializer,
@@ -17,6 +18,62 @@ from .serializers import (
 from .services import OTPRateLimitError, OTPService
 
 UserModel = get_user_model()
+
+
+@extend_schema(
+    summary="Refresh Access Token",
+    description=(
+        "Exchanges a valid refresh token for a new JWT access token and, "
+        "because token rotation is enabled, a new refresh token."
+    ),
+    tags=["Authentication"],
+    request=inline_serializer(
+        name="RefreshTokenRequest",
+        fields={"refresh": serializers.CharField(help_text="JWT refresh token")},
+    ),
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            response=inline_serializer(
+                name="RefreshTokenSuccessResponse",
+                fields={
+                    "access": serializers.CharField(help_text="New JWT access token"),
+                    "refresh": serializers.CharField(help_text="New JWT refresh token"),
+                },
+            ),
+            description="JWT tokens refreshed successfully.",
+        ),
+        status.HTTP_401_UNAUTHORIZED: OpenApiResponse(
+            description="The refresh token is invalid, expired, or blacklisted."
+        ),
+    },
+)
+class RefreshTokenView(TokenRefreshView):
+    pass
+
+
+@extend_schema(
+    summary="Blacklist Refresh Token",
+    description="Invalidates a refresh token so it can no longer be used.",
+    tags=["Authentication"],
+    request=inline_serializer(
+        name="BlacklistTokenRequest",
+        fields={
+            "refresh": serializers.CharField(
+                help_text="JWT refresh token to invalidate"
+            )
+        },
+    ),
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Refresh token blacklisted successfully."
+        ),
+        status.HTTP_401_UNAUTHORIZED: OpenApiResponse(
+            description="The refresh token is invalid, expired, or blacklisted."
+        ),
+    },
+)
+class BlacklistTokenView(TokenBlacklistView):
+    pass
 
 
 class RequestOTPView(APIView):
@@ -29,6 +86,7 @@ class RequestOTPView(APIView):
             "to the specified email address."
         ),
         tags=["Authentication"],
+        auth=[],
         request=RequestOTPSerializer,
         responses={
             status.HTTP_200_OK: OpenApiResponse(
@@ -85,7 +143,7 @@ class RequestOTPView(APIView):
 
 
 class VerifyOTPView(APIView):
-    permission_classes = []
+    permission_classes = [AllowAny]
 
     @extend_schema(
         summary="Verify OTP",
@@ -94,6 +152,7 @@ class VerifyOTPView(APIView):
             "Creates the user when needed and returns JWT access and refresh tokens."
         ),
         tags=["Authentication"],
+        auth=[],
         request=VerifyOTPSerializer,
         responses={
             status.HTTP_200_OK: OpenApiResponse(
@@ -157,6 +216,7 @@ class GoogleAuthView(APIView):
             "Returns JWT access and refresh tokens along with the user's email."
         ),
         tags=["Authentication"],
+        auth=[],
         request=GoogleAuthSerializer,
         responses={
             status.HTTP_200_OK: OpenApiResponse(
