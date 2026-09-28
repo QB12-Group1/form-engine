@@ -9,4 +9,10 @@ urlpatterns = [
     path("otp/verify/", views.VerifyOTPView.as_view(), name="verify-otp"),
     path("google/", views.GoogleAuthView.as_view(), name="google"),
     path("me/", views.UserProfileView.as_view(), name="me"),
+    path("token/refresh/", views.RefreshTokenView.as_view(), name="token-refresh"),
+    path(
+        "token/blacklist/",
+        views.BlacklistTokenView.as_view(),
+        name="token-blacklist",
+    ),
 ]
