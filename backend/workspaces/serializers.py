@@ -1,7 +1,9 @@
+from typing import Any
+
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
-from workspaces.models import Workspace
+from .models import Workspace
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
@@ -15,11 +17,11 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         fields = ["id", "owner", "name", "password", "created_at"]
         read_only_fields = ["id", "owner", "created_at"]
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict[str, Any]) -> Workspace:
         validated_data["password"] = make_password(validated_data["password"])
         return super().create(validated_data)
 
-    def update(self, instance, validated_data):
+    def update(self, instance, validated_data: dict[str, Any]) -> Workspace:
         if "password" in validated_data:
             validated_data["password"] = make_password(validated_data["password"])
         return super().update(instance, validated_data)
