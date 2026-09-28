@@ -4,7 +4,15 @@ from rest_framework import serializers
 
 from workspaces.models import Workspace
 
-from .models import Survey
+from .models import Question, Survey
+
+QuestionType = Question.QuestionType
+
+CHOICE_TYPES = (
+    QuestionType.SINGLE_CHOICE,
+    QuestionType.MULTIPLE_CHOICE,
+    QuestionType.DROPDOWN,
+)
 
 
 def validate_json_object(value: Any) -> None:
@@ -64,3 +72,66 @@ class SurveyListSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = fields
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
+        Model = Question
+        fields = [
+            "id",
+            "survey_id",
+            "title",
+            "description",
+            "type",
+            "is_required",
+            "order",
+            "properties",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "survey_id",
+            "created_at",
+            "updated_at",
+        ]
+        extra_kwargs = {
+            "properties": {"validators": [validate_json_object]},
+        }
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        instance = self.instance
+        if instance is not None and "type" not in attrs and "properties" not in attrs:
+            return attrs
+
+        question_type = attrs.get(
+            "type", instance.type if instance else QuestionType.TEXT
+        )
+        properties = attrs.get("properties", instance.properties if instance else {})
+
+        if question_type in CHOICE_TYPES:
+            options = properties.get("options")
+            if not isinstance(options, list) or not options:
+                raise serializers.ValidationError(
+                    {
+                        "properties": (
+                            "Choice questions require a non-empty'options' list."
+                        )
+                    }
+                )
+        elif question_type == QuestionType.RATING:
+            low, high = properties.get("min"), properties.get("max")
+
+            def is_int(value: Any) -> bool:
+                return isinstance(value, int) and not isinstance(value, bool)
+
+            if not (is_int(low) and is_int(high) and low < high):
+                raise serializers.ValidationError(
+                    {
+                        "properties": (
+                            "Rating questions require integer 'min' and 'max'"
+                            "with min < max."
+                        )
+                    }
+                )
+        return attrs
