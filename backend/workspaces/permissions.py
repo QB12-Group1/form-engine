@@ -7,10 +7,10 @@ from rest_framework.views import APIView
 
 class IsWorkspaceOwner(BasePermission):
     def has_object_permission(self, request: Request, view: APIView, obj: Any) -> bool:
-        return obj.owner == request.user.id  # pyright: ignore[reportAttributeAccessIssue]
+        return obj.owner == request.user
 
 
-class IsWorkspaceOwnerOrMember(IsWorkspaceOwner):
+class IsWorkspaceOwnerOrMember(BasePermission):
     def has_object_permission(self, request: Request, view: APIView, obj: Any) -> bool:
         return super().has_object_permission(
             request, view, obj

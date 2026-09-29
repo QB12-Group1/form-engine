@@ -2,6 +2,7 @@ from typing import Any
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import AbstractUser
 from rest_framework import serializers
 
 from .models import Workspace
@@ -10,9 +11,14 @@ UserModel = get_user_model()
 
 
 class UserSummarySerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+
     class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
         model = UserModel
-        fields = ["id", "first_name", "full_name", "email"]
+        fields = ["id", "full_name", "email"]
+
+    def get_full_name(self, obj: AbstractUser) -> str:
+        return obj.get_full_name()
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
@@ -21,7 +27,7 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         write_only=True, required=False, allow_null=True, min_length=8, max_length=256
     )
     is_password_protected = serializers.SerializerMethodField()
-    members_count = serializers.IntegerField(source="members.count", readonly=True)
+    members_count = serializers.IntegerField(source="members.count", read_only=True)
 
     class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
         model = Workspace
