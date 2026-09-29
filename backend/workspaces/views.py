@@ -235,6 +235,7 @@ class WorkspaceViewSet(ModelViewSet):
             "refresh it."
         ),
         tags=["Workspaces"],
+        request=None,
         responses={
             status.HTTP_200_OK: OpenApiResponse(
                 response=inline_serializer(
