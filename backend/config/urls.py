@@ -27,5 +27,5 @@ urlpatterns = [
     ),
     # API Endpoints
     path("api/auth/", include("accounts.urls")),
-    path("api/", include("workspaces.urls")),
+    path("api/", include(router.urls)),
 ]
