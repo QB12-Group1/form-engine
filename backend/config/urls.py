@@ -3,7 +3,9 @@ from django.http import JsonResponse
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
+from rest_framework_nested import routers
 
+from surveys.views import SurveyViewSet, WorkspaceSurveyViewset
 from workspaces.views import WorkspaceViewSet
 
 
@@ -13,6 +15,14 @@ def health_check(_: object) -> JsonResponse:
 
 router = DefaultRouter()
 router.register(r"workspaces", WorkspaceViewSet, basename="workspace")
+router.register(r"surveys", SurveyViewSet, basename="survey")
+
+workspace_router = routers.NestedDefaultRouter(
+    router, r"workspaces", lookup="workspace"
+)
+workspace_router.register(
+    r"surveys", WorkspaceSurveyViewset, basename="workspace-surveys"
+)
 
 urlpatterns = [
     # System & Operations
@@ -28,4 +38,5 @@ urlpatterns = [
     # API Endpoints
     path("api/auth/", include("accounts.urls")),
     path("api/", include(router.urls)),
+    path("api/", include(workspace_router.urls)),
 ]
