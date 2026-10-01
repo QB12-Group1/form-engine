@@ -10,8 +10,6 @@ class IsWorkspaceOwner(BasePermission):
         return obj.owner == request.user
 
 
-class IsWorkspaceOwnerOrMember(BasePermission):
+class IsWorkspaceOwnerOrMember(IsWorkspaceOwner):
     def has_object_permission(self, request: Request, view: APIView, obj: Any) -> bool:
-        return super().has_object_permission(
-            request, view, obj
-        ) or obj.members.contains(request.user)
+        return obj.owner == request.user or obj.members.contains(request.user)
