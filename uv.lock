@@ -568,6 +568,19 @@ wheels = [
 ]
 
 [[package]]
+name = "drf-nested-routers"
+version = "0.95.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+    { name = "djangorestframework" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/86/fa/82d61dd87bfbc94f9d33657e7c82f8fe3e029103d4be4b7536e4877ac544/drf_nested_routers-0.95.3.tar.gz", hash = "sha256:3d5ffad87b110c9d58ee0c688cf540a7fa4ccbf1080b2d318a5e2cf634322d96", size = 22398, upload-time = "2026-07-31T15:19:02.529Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/12/33/c814bfd41d343045f4690c8f078601104fc75782c36913b2b7c9a7cec84c/drf_nested_routers-0.95.3-py3-none-any.whl", hash = "sha256:bb02f4fea712f7f0fc649fc1399718e458a06387fdb2fb161cc9aeaad314f4ef", size = 20990, upload-time = "2026-07-31T15:19:01.119Z" },
+]
+
+[[package]]
 name = "drf-spectacular"
 version = "0.30.0"
 source = { registry = "https://pypi.org/simple" }
@@ -633,6 +646,7 @@ dependencies = [
     { name = "djangorestframework" },
     { name = "djangorestframework-simplejwt" },
     { name = "djangorestframework-types" },
+    { name = "drf-nested-routers" },
     { name = "drf-spectacular" },
     { name = "flower" },
     { name = "google-auth" },
@@ -661,6 +675,7 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.18.1" },
     { name = "djangorestframework-simplejwt", specifier = ">=5.5.1" },
     { name = "djangorestframework-types", specifier = ">=0.9.0" },
+    { name = "drf-nested-routers", specifier = ">=0.95.3" },
     { name = "drf-spectacular", specifier = ">=0.30.0" },
     { name = "flower", specifier = ">=2.1.0" },
     { name = "google-auth", specifier = ">=2.58.0" },
