@@ -43,7 +43,7 @@ class Question(models.Model):
     )
     is_required = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
-    properties = models.JSONField(default=dict)
+    properties = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
