@@ -1,0 +1,1670 @@
+openapi: 3.0.3
+info:
+  title: Form Engine API
+  version: 1.0.0
+  description: API documentation for the Form Engine project.
+paths:
+  /api/auth/google/:
+    post:
+      operationId: auth_google_create
+      description: Authenticates or registers a user via a Google ID token. Returns
+        JWT access and refresh tokens along with the user's email.
+      summary: Google OAuth Login
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleAuth'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GoogleAuth'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GoogleAuth'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleAuthSuccessResponse'
+          description: Successfully authenticated with Google.Returns JWT tokens.
+        '400':
+          description: Invalid Google ID token or missing required fields.
+  /api/auth/me/:
+    get:
+      operationId: auth_me_retrieve
+      description: Retrieves the authenticated user's profile.
+      summary: Get User Profile
+      tags:
+      - User Profile
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: Authenticated user's profile retrieved successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+    put:
+      operationId: auth_me_update
+      description: Replaces the authenticated user's profile information.
+      summary: Update User Profile
+      tags:
+      - User Profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: User profile updated successfully.
+        '400':
+          description: Invalid profile data.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+    patch:
+      operationId: auth_me_partial_update
+      description: Updates one or more fields of the authenticated user's profile.
+      summary: Partially Update User Profile
+      tags:
+      - User Profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfile'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: User profile updated successfully.
+        '400':
+          description: Invalid profile data.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+  /api/auth/otp/request/:
+    post:
+      operationId: auth_otp_request_create
+      description: Generates and sends a one-time password (OTP)to the specified email
+        address.
+      summary: Request OTP
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestOTP'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RequestOTP'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RequestOTP'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestOTPSuccessResponse'
+          description: OTP successfully generated and sent.
+        '400':
+          description: Invalid input data (e.g. malformed email).
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestOTPRateLimitResponse'
+          description: Rate limit exceeded. Client must wait before requesting again.
+  /api/auth/otp/verify/:
+    post:
+      operationId: auth_otp_verify_create
+      description: Verifies a one-time password (OTP) for the specified email address.
+        Creates the user when needed and returns JWT access and refresh tokens.
+      summary: Verify OTP
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyOTP'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyOTP'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyOTP'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyOTPSuccessResponse'
+          description: OTP successfully verified and JWT tokens returned.
+        '400':
+          description: Invalid input data or OTP verification failure (invalid, expired,
+            or exhausted code).
+  /api/auth/token/blacklist/:
+    post:
+      operationId: auth_token_blacklist_create
+      description: Invalidates a refresh token so it can no longer be used.
+      summary: Blacklist Refresh Token
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlacklistTokenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BlacklistTokenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BlacklistTokenRequest'
+        required: true
+      responses:
+        '200':
+          description: Refresh token blacklisted successfully.
+        '401':
+          description: The refresh token is invalid, expired, or blacklisted.
+  /api/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: Exchanges a valid refresh token for a new JWT access token and,
+        because token rotation is enabled, a new refresh token.
+      summary: Refresh Access Token
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenSuccessResponse'
+          description: JWT tokens refreshed successfully.
+        '401':
+          description: The refresh token is invalid, expired, or blacklisted.
+  /api/questions/{id}/:
+    get:
+      operationId: questions_retrieve
+      description: Retrieves a question the authenticated user can access.
+      summary: Get Question
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this question.
+        required: true
+      tags:
+      - Questions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+          description: Question retrieved successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Question not found or is not accessible.
+    put:
+      operationId: questions_update
+      description: Replaces the information for a question the user can access.
+      summary: Update Question
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this question.
+        required: true
+      tags:
+      - Questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Question'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Question'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Question'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+          description: Question updated successfully.
+        '400':
+          description: Invalid question data.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Question not found or is not accessible.
+    patch:
+      operationId: questions_partial_update
+      description: Updates one or more fields of a question the user can access.
+      summary: Partially Update Question
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this question.
+        required: true
+      tags:
+      - Questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedQuestion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedQuestion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedQuestion'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+          description: Question updated successfully.
+        '400':
+          description: Invalid question data.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Question not found or is not accessible.
+    delete:
+      operationId: questions_destroy
+      description: Deletes a question the authenticated user can access.
+      summary: Delete Question
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this question.
+        required: true
+      tags:
+      - Questions
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Question deleted successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Question not found or is not accessible.
+  /api/surveys/{id}/:
+    get:
+      operationId: surveys_retrieve
+      description: Retrieves a survey the authenticated user can access.
+      summary: Get Survey
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this survey.
+        required: true
+      tags:
+      - Surveys
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Survey'
+          description: Survey retrieved successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Survey not found or is not accessible.
+    put:
+      operationId: surveys_update
+      description: Replaces the information for a survey the user can access.
+      summary: Update Survey
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this survey.
+        required: true
+      tags:
+      - Surveys
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Survey'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Survey'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Survey'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Survey'
+          description: Survey updated successfully.
+        '400':
+          description: Invalid survey data.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Survey not found or is not accessible.
+    patch:
+      operationId: surveys_partial_update
+      description: Updates one or more fields of a survey the user can access.
+      summary: Partially Update Survey
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this survey.
+        required: true
+      tags:
+      - Surveys
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSurvey'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSurvey'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSurvey'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Survey'
+          description: Survey updated successfully.
+        '400':
+          description: Invalid survey data.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Survey not found or is not accessible.
+    delete:
+      operationId: surveys_destroy
+      description: Deletes a survey the authenticated user can access.
+      summary: Delete Survey
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this survey.
+        required: true
+      tags:
+      - Surveys
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Survey deleted successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Survey not found or is not accessible.
+  /api/surveys/{id}/close/:
+    post:
+      operationId: surveys_close_create
+      description: Changes a survey's status to closed.
+      summary: Close Survey
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this survey.
+        required: true
+      tags:
+      - Surveys
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloseSurveyResponse'
+          description: Survey closed successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Survey not found or is not accessible.
+  /api/surveys/{id}/publish/:
+    post:
+      operationId: surveys_publish_create
+      description: Changes a survey's status to published.
+      summary: Publish Survey
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this survey.
+        required: true
+      tags:
+      - Surveys
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishSurveyResponse'
+          description: Survey published successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Survey not found or is not accessible.
+  /api/surveys/{survey_pk}/questions/:
+    get:
+      operationId: surveys_questions_list
+      description: Lists questions in a survey the authenticated user can access.
+      summary: List Survey Questions
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: survey_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Survey Questions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedQuestionList'
+          description: Survey questions retrieved successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Survey not found or is not accessible.
+    post:
+      operationId: surveys_questions_create
+      description: Creates a question in a survey the authenticated user can access.
+      summary: Create Survey Question
+      parameters:
+      - in: path
+        name: survey_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Survey Questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Question'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Question'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Question'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+          description: Question created successfully.
+        '400':
+          description: Invalid question data.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Survey not found or is not accessible.
+  /api/surveys/{survey_pk}/questions/reorder/:
+    post:
+      operationId: surveys_questions_reorder_create
+      description: Reorders every question in a survey. Supply each question ID exactly
+        once in its desired order.
+      summary: Reorder Survey Questions
+      parameters:
+      - in: path
+        name: survey_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Survey Questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionReorder'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuestionReorder'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuestionReorder'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReorderSurveyQuestionsResponse'
+          description: Survey questions reordered successfully.
+        '400':
+          description: Question IDs must be unique and include every question in the
+            survey.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Survey not found or is not accessible.
+  /api/workspaces/:
+    get:
+      operationId: workspaces_list
+      description: Lists workspaces owned by or shared with the authenticated user.
+      summary: List Workspaces
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedWorkspaceList'
+          description: Workspaces retrieved successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+    post:
+      operationId: workspaces_create
+      description: Creates a workspace owned by the authenticated user.
+      summary: Create Workspace
+      tags:
+      - Workspaces
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: Workspace created successfully.
+        '400':
+          description: Invalid workspace data.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+  /api/workspaces/{id}/:
+    get:
+      operationId: workspaces_retrieve
+      description: Retrieves a workspace the authenticated user can access.
+      summary: Get Workspace
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this workspace.
+        required: true
+      tags:
+      - Workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: Workspace retrieved successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          description: The authenticated user cannot access this workspace.
+        '404':
+          description: Workspace not found.
+    put:
+      operationId: workspaces_update
+      description: Replaces workspace information. Only the owner can update it.
+      summary: Update Workspace
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this workspace.
+        required: true
+      tags:
+      - Workspaces
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: Workspace updated successfully.
+        '400':
+          description: Invalid workspace data.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          description: Only the workspace owner can update it.
+        '404':
+          description: Workspace not found.
+    patch:
+      operationId: workspaces_partial_update
+      description: Updates one or more workspace fields. Only the owner can update
+        it.
+      summary: Partially Update Workspace
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this workspace.
+        required: true
+      tags:
+      - Workspaces
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspace'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspace'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspace'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: Workspace updated successfully.
+        '400':
+          description: Invalid workspace data.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          description: Only the workspace owner can update it.
+        '404':
+          description: Workspace not found.
+    delete:
+      operationId: workspaces_destroy
+      description: Deletes a workspace. Only the owner can delete it.
+      summary: Delete Workspace
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this workspace.
+        required: true
+      tags:
+      - Workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Workspace deleted successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          description: Only the workspace owner can delete it.
+        '404':
+          description: Workspace not found.
+  /api/workspaces/{id}/members/:
+    get:
+      operationId: workspaces_members_list
+      description: Lists all members of a workspace.
+      summary: List Workspace Members
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this workspace.
+        required: true
+      tags:
+      - Workspace Members
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserSummaryList'
+          description: Workspace members retrieved successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          description: The authenticated user cannot access this workspace.
+        '404':
+          description: Workspace not found.
+  /api/workspaces/{id}/members/{user_id}/:
+    get:
+      operationId: workspaces_member_retrieve
+      description: Retrieves a member of a workspace.
+      summary: Get Workspace Member
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this workspace.
+        required: true
+      - in: path
+        name: user_id
+        schema:
+          type: string
+          pattern: ^\d+$
+        required: true
+      tags:
+      - Workspace Members
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSummary'
+          description: Workspace member retrieved successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          description: The authenticated user cannot access this workspace.
+        '404':
+          description: Workspace or member not found.
+    delete:
+      operationId: workspaces_member_destroy
+      description: Removes a member from a workspace. The owner or the member themselves
+        can remove the membership.
+      summary: Remove Workspace Member
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this workspace.
+        required: true
+      - in: path
+        name: user_id
+        schema:
+          type: string
+          pattern: ^\d+$
+        required: true
+      tags:
+      - Workspace Members
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Workspace member removed successfully.
+        '400':
+          description: The workspace owner cannot be removed from members.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          description: The user does not have permission to remove this member.
+        '404':
+          description: Workspace or member not found.
+  /api/workspaces/{id}/refresh-invite-token/:
+    post:
+      operationId: workspaces_refresh_invite_token_create
+      description: Generates a new invite token for a workspace. Only the owner can
+        refresh it.
+      summary: Refresh Workspace Invite Token
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this workspace.
+        required: true
+      tags:
+      - Workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshInviteTokenResponse'
+          description: Workspace invite token refreshed successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          description: Only the workspace owner can refresh the invite token.
+        '404':
+          description: Workspace not found.
+  /api/workspaces/{workspace_pk}/surveys/:
+    get:
+      operationId: workspaces_surveys_list
+      description: Lists surveys in a workspace the authenticated user can access.
+      summary: List Workspace Surveys
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: workspace_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Workspace Surveys
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSurveyList'
+          description: Workspace surveys retrieved successfully.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Workspace not found or is not accessible.
+    post:
+      operationId: workspaces_surveys_create
+      description: Creates a survey in a workspace the authenticated user can access.
+        The survey is created as a draft.
+      summary: Create Workspace Survey
+      parameters:
+      - in: path
+        name: workspace_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Workspace Surveys
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Survey'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Survey'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Survey'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Survey'
+          description: Survey created successfully.
+        '400':
+          description: Invalid survey data.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '404':
+          description: Workspace not found or is not accessible.
+  /api/workspaces/join/:
+    post:
+      operationId: workspaces_join_create
+      description: Joins the authenticated user to a workspace using its invite token
+        and password when required.
+      summary: Join Workspace
+      tags:
+      - Workspaces
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinWorkspace'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/JoinWorkspace'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/JoinWorkspace'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JoinWorkspaceResponse'
+          description: The user joined the workspace or was already a member.
+        '400':
+          description: Invalid invite token or password data.
+        '401':
+          description: Authentication credentials were not provided or are invalid.
+        '403':
+          description: The workspace password is invalid.
+        '404':
+          description: The invite token is invalid.
+components:
+  schemas:
+    BlacklistTokenRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          description: JWT refresh token to invalidate
+      required:
+      - refresh
+    CloseSurveyResponse:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+      - status
+    GoogleAuth:
+      type: object
+      properties:
+        id_token:
+          type: string
+          description: Google ID token obtained from Google OAuth.
+      required:
+      - id_token
+    GoogleAuthSuccessResponse:
+      type: object
+      properties:
+        access:
+          type: string
+          description: JWT access token
+        refresh:
+          type: string
+          description: JWT refresh token
+        email:
+          type: string
+          format: email
+          description: User's verified email address
+      required:
+      - access
+      - email
+      - refresh
+    JoinWorkspace:
+      type: object
+      properties:
+        invite_token:
+          type: string
+          format: uuid
+        password:
+          type: string
+          nullable: true
+      required:
+      - invite_token
+    JoinWorkspaceResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+    PaginatedQuestionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
+    PaginatedSurveyList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Survey'
+    PaginatedUserSummaryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSummary'
+    PaginatedWorkspaceList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workspace'
+    PatchedQuestion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        survey:
+          allOf:
+          - $ref: '#/components/schemas/Survey'
+          readOnly: true
+        properties:
+          type: object
+          additionalProperties: {}
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: '#/components/schemas/TypeEnum'
+        is_required:
+          type: boolean
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedSurvey:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        workspace:
+          allOf:
+          - $ref: '#/components/schemas/Workspace'
+          readOnly: true
+        settings:
+          type: object
+          additionalProperties: {}
+        logic_rules:
+          type: object
+          additionalProperties: {}
+        title:
+          type: string
+          maxLength: 256
+        description:
+          type: string
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedUserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        first_name:
+          type: string
+          minLength: 2
+        last_name:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          format: email
+          readOnly: true
+          nullable: true
+          title: Email address
+          description: 'Required for regular users. Format: user@example.com'
+    PatchedWorkspace:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        owner:
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
+          readOnly: true
+        password:
+          type: string
+          writeOnly: true
+          nullable: true
+          maxLength: 256
+          minLength: 8
+        is_password_protected:
+          type: boolean
+          readOnly: true
+        invite_token:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        members_count:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PublishSurveyResponse:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+      - status
+    Question:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        survey:
+          allOf:
+          - $ref: '#/components/schemas/Survey'
+          readOnly: true
+        properties:
+          type: object
+          additionalProperties: {}
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: '#/components/schemas/TypeEnum'
+        is_required:
+          type: boolean
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - survey
+      - title
+      - updated_at
+    QuestionReorder:
+      type: object
+      properties:
+        question_ids:
+          type: array
+          items:
+            type: integer
+          description: Ordered list of question IDs matching the desired sequence.
+      required:
+      - question_ids
+    RefreshInviteTokenResponse:
+      type: object
+      properties:
+        invite_token:
+          type: string
+          format: uuid
+      required:
+      - invite_token
+    RefreshTokenRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          description: JWT refresh token
+      required:
+      - refresh
+    RefreshTokenSuccessResponse:
+      type: object
+      properties:
+        access:
+          type: string
+          description: New JWT access token
+        refresh:
+          type: string
+          description: New JWT refresh token
+      required:
+      - access
+      - refresh
+    ReorderSurveyQuestionsResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          default: ok
+    RequestOTP:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    RequestOTPRateLimitResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          default: Rate limit exceeded. Please try again later.
+        retry_after:
+          type: integer
+          default: 60
+          description: Cooldown time remaining in seconds
+    RequestOTPSuccessResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          default: OTP sent successfully.
+    StatusEnum:
+      enum:
+      - draft
+      - published
+      - closed
+      type: string
+      description: |-
+        * `draft` - Draft
+        * `published` - Published
+        * `closed` - Closed
+    Survey:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        workspace:
+          allOf:
+          - $ref: '#/components/schemas/Workspace'
+          readOnly: true
+        settings:
+          type: object
+          additionalProperties: {}
+        logic_rules:
+          type: object
+          additionalProperties: {}
+        title:
+          type: string
+          maxLength: 256
+        description:
+          type: string
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - status
+      - title
+      - updated_at
+      - workspace
+    TypeEnum:
+      enum:
+      - text
+      - singleChoice
+      - multipleChoice
+      - dropdown
+      - rating
+      type: string
+      description: |-
+        * `text` - Text
+        * `singleChoice` - SingleChoice
+        * `multipleChoice` - MultipleChoice
+        * `dropdown` - Dropdown
+        * `rating` - Rating
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        first_name:
+          type: string
+          minLength: 2
+        last_name:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          format: email
+          readOnly: true
+          nullable: true
+          title: Email address
+          description: 'Required for regular users. Format: user@example.com'
+      required:
+      - email
+      - first_name
+      - id
+      - last_name
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        email:
+          nullable: true
+          title: Email address
+          description: 'Required for regular users. Format: user@example.com'
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+      required:
+      - full_name
+      - id
+    VerifyOTP:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        code:
+          type: string
+          maxLength: 6
+          minLength: 6
+          pattern: ^[0123456789]+$
+      required:
+      - code
+      - email
+    VerifyOTPSuccessResponse:
+      type: object
+      properties:
+        access:
+          type: string
+          description: JWT access token
+        refresh:
+          type: string
+          description: JWT refresh token
+        email:
+          type: string
+          format: email
+          description: Verified user's email address
+        is_new:
+          type: boolean
+          description: Whether a new user account was created
+      required:
+      - access
+      - email
+      - is_new
+      - refresh
+    Workspace:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        owner:
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
+          readOnly: true
+        password:
+          type: string
+          writeOnly: true
+          nullable: true
+          maxLength: 256
+          minLength: 8
+        is_password_protected:
+          type: boolean
+          readOnly: true
+        invite_token:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        members_count:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - invite_token
+      - is_password_protected
+      - members_count
+      - name
+      - owner
+      - updated_at
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
