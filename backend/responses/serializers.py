@@ -27,6 +27,8 @@ class ResponseSessionSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
+            "respondent_ip",
+            "user_agent",
             "is_completed",
             "submitted_at",
             "created_at",
