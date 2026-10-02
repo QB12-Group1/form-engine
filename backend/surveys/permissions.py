@@ -12,3 +12,10 @@ class HasWorkspaceAccess(BasePermission):
         return IsWorkspaceOwnerOrMember().has_object_permission(
             request, view, obj.workspace
         )
+
+
+class HasSurveyAccess(BasePermission):
+    def has_object_permission(self, request: Request, view: APIView, obj: Any) -> bool:
+        return IsWorkspaceOwnerOrMember().has_object_permission(
+            request, view, obj.survey.workspace
+        )

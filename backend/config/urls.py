@@ -5,7 +5,12 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 
-from surveys.views import SurveyViewSet, WorkspaceSurveyViewset
+from surveys.views import (
+    QuestionViewSet,
+    SurveyQuestionViewset,
+    SurveyViewSet,
+    WorkspaceSurveyViewset,
+)
 from workspaces.views import WorkspaceViewSet
 
 
@@ -16,6 +21,7 @@ def health_check(_: object) -> JsonResponse:
 router = DefaultRouter()
 router.register(r"workspaces", WorkspaceViewSet, basename="workspace")
 router.register(r"surveys", SurveyViewSet, basename="survey")
+router.register(r"questions", QuestionViewSet, basename="question")
 
 workspace_router = routers.NestedDefaultRouter(
     router, r"workspaces", lookup="workspace"
@@ -23,6 +29,9 @@ workspace_router = routers.NestedDefaultRouter(
 workspace_router.register(
     r"surveys", WorkspaceSurveyViewset, basename="workspace-surveys"
 )
+
+survey_router = routers.NestedDefaultRouter(router, r"surveys", lookup="survey")
+survey_router.register(r"questions", SurveyQuestionViewset, basename="survey-questions")
 
 urlpatterns = [
     # System & Operations
@@ -39,4 +48,5 @@ urlpatterns = [
     path("api/auth/", include("accounts.urls")),
     path("api/", include(router.urls)),
     path("api/", include(workspace_router.urls)),
+    path("api/", include(survey_router.urls)),
 ]
