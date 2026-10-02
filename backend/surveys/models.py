@@ -11,13 +11,13 @@ class Survey(models.Model):
     workspace = models.ForeignKey(
         "workspaces.Workspace", on_delete=models.CASCADE, related_name="surveys"
     )
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=256)
     description = models.TextField(blank=True)
     status = models.CharField(
         max_length=50, choices=SurveyStatus.choices, default=SurveyStatus.DRAFT
     )
-    settings = models.JSONField(default=dict)
-    logic_rules = models.JSONField(default=dict)
+    settings = models.JSONField(default=dict, blank=True)
+    logic_rules = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -36,7 +36,7 @@ class Question(models.Model):
     survey = models.ForeignKey(
         Survey, on_delete=models.CASCADE, related_name="questions"
     )
-    title = models.CharField(max_length=50)
+    title = models.TextField()
     description = models.TextField(blank=True)
     type = models.CharField(
         max_length=50, choices=QuestionType.choices, default=QuestionType.TEXT
